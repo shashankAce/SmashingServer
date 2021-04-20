@@ -98,6 +98,10 @@ class State extends schema.Schema {
     this.winningPlayer = -1;
   }
 
+  getPlayerTurnIndex() {
+    return this.playerTurn;
+  }
+
   changePlayerTurn() {
     this.playerTurn = this.playerTurn > 1 ? 1 : 2;
   }

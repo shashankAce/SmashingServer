@@ -4,14 +4,10 @@ const colyseus = require('colyseus');
 const schema = require('@colyseus/schema');
 const State = require('./schema/State').State;
 const Player = require('./schema/State').Player;
+const MyRoomGameLogic = require('./MyRoomGameLogic').MyRoomGameLogic;
+const Constants  = require('../Constants').Constants;
 
-class MyRoom extends colyseus.Room {
-
-  constructor() {
-    super();
-    this.maxClients = 2;
-    this.playerCount = 0;
-  }
+class MyRoom extends MyRoomGameLogic {
 
   onCreate(options) {
 
@@ -23,53 +19,7 @@ class MyRoom extends colyseus.Room {
     this.setState(state);
     console.log("Room created");
 
-    this.onMessage("touchLocation", (client, data) => {
-      if (this.state.players[client.sessionId]) {
-        //console.log(this.state.players[client.sessionId].name, data);
-        this.broadcast("touchLocation", data, { except: client });
-      }
-    });
-
-    this.onMessage("positionUpdate", (client, data) => {
-      if (this.state.players[client.sessionId]) {
-        this.broadcast("positionUpdate", data, { except: client });
-      }
-    });
-
-    this.onMessage("shootUpdate", (client, data) => {
-      // changing hero turn after a player has played
-      this.state.getActivePlayer().changeHeroTurn();
-      console.log("Shoot by " + this.state.getActivePlayer().name);
-
-      this.broadcast("shootUpdate", { shooterId: client.sessionId }, { except: client });
-    });
-
-    this.onMessage("clientReady", (client, data) => {
-      // Sending data to that client who is ready
-      let otherClient = this.clients.find(element => element.sessionId != client.sessionId);
-
-      let plyr = this.state.getActivePlayer();
-      this.broadcast("clientReady", {
-        name: plyr.name,
-        playerTurnId: plyr.sessionId,
-        heroId: plyr.getActiveHero().id,
-      }, { except: otherClient });
-
-    });
-
-    this.onMessage("switchTurn", (client, data) => {
-      // Switching turn to next player
-      this.state.changePlayerTurn();
-
-      let plyr = this.state.getActivePlayer();
-      this.broadcast("switchTurn", {
-        name: plyr.name,
-        playerTurnId: plyr.sessionId,
-        heroId: plyr.getActiveHero().id
-      });
-
-    });
-
+    this.activeListeners();
   }
 
   onJoin(client, options) {
@@ -78,6 +28,8 @@ class MyRoom extends colyseus.Room {
     // will be used later
 
     console.log('client joined', client.sessionId);
+
+    console.log(Constants.GAME_TIME_COUNT, "Do now know it will work");
 
     let player = new Player(options.herosArray);
     player.sessionId = client.sessionId;
@@ -123,13 +75,6 @@ class MyRoom extends colyseus.Room {
 
   }
 
-  getClientById(clientId) {
-    for (let index = 0; index < this.clients.length; index++) {
-      if (this.clients[index].id === clientId)
-        return this.clients[index];
-    }
-  }
-
   onLeave(client, consented) {
     if (this.state.players[client.sessionId]) {
       this.state.players.delete(client.sessionId);
@@ -138,6 +83,10 @@ class MyRoom extends colyseus.Room {
 
       console.log('client left', client.sessionId);
     }
+  }
+
+  onDispose() {
+    console.log('Room disposed');
   }
 
   chatMessage(client, message) {
@@ -154,14 +103,47 @@ class MyRoom extends colyseus.Room {
     });
   }
 
-  onDispose() {
-    console.log('Room disposed');
+  activeListeners() {
+
+    this.onMessage("touchLocation", (client, data) => {
+      if (this.state.players[client.sessionId]) {
+        //console.log(this.state.players[client.sessionId].name, data);
+        this.broadcast("touchLocation", data, { except: client });
+      }
+    });
+
+    this.onMessage("positionUpdate", (client, data) => {
+      if (this.state.players[client.sessionId]) {
+        this.broadcast("positionUpdate", data, { except: client });
+      }
+    });
+
+    this.onMessage("shootUpdate", (client, data) => {
+      // changing hero turn after a player has played
+      this.state.getActivePlayer().changeHeroTurn();
+      console.log("Shoot by " + this.state.getActivePlayer().name);
+
+      this.broadcast("shootUpdate", { shooterId: client.sessionId }, { except: client });
+    });
+
+    this.onMessage("clientReady", (client, data) => {
+      // Sending data to that client who is ready
+      let otherClient = this.clients.find(element => element.sessionId != client.sessionId);
+
+      let plyr = this.state.getActivePlayer();
+      this.broadcast("clientReady", {
+        name: plyr.name,
+        playerTurnId: plyr.sessionId,
+        heroId: plyr.getActiveHero().id,
+      }, { except: otherClient });
+
+    });
+
+    this.onMessage("switchTurn", (client, data) => {
+      this.switchPlayerTurn();
+    });
   }
 
 }
-
-schema.defineTypes(MyRoom, {
-  playerCount: 'number'
-});
 
 exports.MyRoom = MyRoom;
