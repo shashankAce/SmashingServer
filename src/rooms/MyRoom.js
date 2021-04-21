@@ -1,11 +1,9 @@
 
-
 const colyseus = require('colyseus');
 const schema = require('@colyseus/schema');
 const State = require('./schema/State').State;
 const Player = require('./schema/State').Player;
 const MyRoomGameLogic = require('./MyRoomGameLogic').MyRoomGameLogic;
-const Constants  = require('../Constants').Constants;
 
 class MyRoom extends MyRoomGameLogic {
 
@@ -28,8 +26,6 @@ class MyRoom extends MyRoomGameLogic {
     // will be used later
 
     console.log('client joined', client.sessionId);
-
-    console.log(Constants.GAME_TIME_COUNT, "Do now know it will work");
 
     let player = new Player(options.herosArray);
     player.sessionId = client.sessionId;
@@ -78,7 +74,12 @@ class MyRoom extends MyRoomGameLogic {
   onLeave(client, consented) {
     if (this.state.players[client.sessionId]) {
       this.state.players.delete(client.sessionId);
+
+      // Game Logic
       this.playerCount--;
+      this.clientsReadyCount--;
+      this.isReady = false;
+      this.isTimerActive = false;
       this.state = 'waiting';
 
       console.log('client left', client.sessionId);
@@ -122,28 +123,34 @@ class MyRoom extends MyRoomGameLogic {
       // changing hero turn after a player has played
       this.state.getActivePlayer().changeHeroTurn();
       console.log("Shoot by " + this.state.getActivePlayer().name);
+      this.setTimerActive(false);
 
       this.broadcast("shootUpdate", { shooterId: client.sessionId }, { except: client });
     });
 
+    this.onMessage("turnOver", (client, data) => {
+      this.switchPlayerTurn();
+    });
+
     this.onMessage("clientReady", (client, data) => {
       // Sending data to that client who is ready
-      let otherClient = this.clients.find(element => element.sessionId != client.sessionId);
 
+      let otherClient = this.clients.find(element => element.sessionId != client.sessionId);
       let plyr = this.state.getActivePlayer();
-      this.broadcast("clientReady", {
+      this.broadcast("playerTurnUpdate", {
         name: plyr.name,
         playerTurnId: plyr.sessionId,
         heroId: plyr.getActiveHero().id,
       }, { except: otherClient });
 
+      // Start the game if both the clients are ready
+      this.clientsReadyCount++;
+      if (this.clientsReadyCount == this.maxClients) {
+        this.startGame();
+      }
     });
 
-    this.onMessage("switchTurn", (client, data) => {
-      this.switchPlayerTurn();
-    });
   }
-
 }
 
 exports.MyRoom = MyRoom;

@@ -1,5 +1,5 @@
 const Constants = {
-    GAME_TIME_COUNT: 10,
+    ROUND_DURATION: 10,
 
 }
 exports.Constants = Constants;

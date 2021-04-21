@@ -2,37 +2,45 @@ const colyseus = require('colyseus');
 const schema = require('@colyseus/schema');
 const State = require('./schema/State').State;
 const Player = require('./schema/State').Player;
+const Constants = require('../Constants').Constants;
 
 class MyRoomGameLogic extends colyseus.Room {
 
     constructor() {
         super();
+
         this.maxClients = 2;
         this.playerCount = 0;
-        this.gameTimeCount = 5;
-        this.gameTimer = 0;
+        this.durationCount = Constants.ROUND_DURATION;
+        this.durationTimer = 0;
+        this.isReady = false;
+        this.isTimerActive = false;
+
+        //Todo later
+        this.pendingActions = [];
+
+        //
+        this.clientsReadyCount = 0;
     }
 
-    #authorName = "Shashank";
-
     startGame() {
-
+        this.isReady = true;
+        this.isTimerActive = true;
         this.startTimer();
-
     }
 
     startTimer() {
-        this.gameTimer = setInterval(() => {
-            this.updateGameTime();
+        this.durationTimer = setInterval(() => {
+            this.updateRoundTime();
         }, 1000);
     }
 
-    stopTimer() {
-        clearInterval(this.gameTimer);
+    removeTimer() {
+        clearInterval(this.durationTimer);
     }
 
-    getAutherName() {
-        return this.#authorName;
+    setTimerActive(bool) {
+        this.isTimerActive = bool;
     }
 
     getClientById(clientId) {
@@ -42,23 +50,26 @@ class MyRoomGameLogic extends colyseus.Room {
         }
     }
 
-    updateGameTime() {
+    updateRoundTime() {
+        if (this.isTimerActive) {
 
-        if (this.gameTimeCount <= 0) {
-            //Switch Player Turn
-            this.switchPlayerTurn();
-
-            this.gameTimeCount = GAME_TIME_COUNT;
-        } else {
-            this.broadcast("gameTimerUpdate", {
-                timerCount: this.gameTimeCount
+            this.broadcast("onClockUpdate", {
+                time: this.durationCount
             });
+
+            if (this.durationCount <= 0) {
+                //Switch Player Turn
+                this.isTimerActive = false;
+                this.switchPlayerTurn();
+            }
+
+            this.durationCount--;
         }
-        this.gameTimeCount--;
     }
 
     switchPlayerTurn() {
         // Switching turn to next player
+        this.durationCount = Constants.ROUND_DURATION;
         this.state.changePlayerTurn();
 
         let plyr = this.state.getActivePlayer();
@@ -67,13 +78,14 @@ class MyRoomGameLogic extends colyseus.Room {
             playerTurnId: plyr.sessionId,
             heroId: plyr.getActiveHero().id
         });
+        this.setTimerActive(true);
     }
 }
 
 schema.defineTypes(MyRoomGameLogic, {
     playerCount: 'number',
-    gameTimeCount: 'number',
-    gameTimer: 'number'
+    durationCount: 'number',
+    durationTimer: 'number'
 });
 
 exports.MyRoomGameLogic = MyRoomGameLogic;
