@@ -2,7 +2,8 @@
 const colyseus = require('colyseus');
 const schema = require('@colyseus/schema');
 const State = require('./schema/State').State;
-const Player = require('./schema/State').Player;
+const Player = require('./schema/Player').Player;
+const Hero = require('./schema/Hero').Hero;
 const MyRoomGameLogic = require('./MyRoomGameLogic').MyRoomGameLogic;
 
 class MyRoom extends MyRoomGameLogic {
@@ -45,15 +46,7 @@ class MyRoom extends MyRoomGameLogic {
         let tmpArray = [];
 
         plyr.herosMap.forEach((hero, key) => {
-          tmpArray.push(JSON.stringify({
-            name: hero.name,
-            mass: hero.mass,
-            size: hero.size,
-            rating: hero.rating,
-            playerHitDamage: hero.playerHitDamage,
-            playerHealth: hero.playerHealth,
-            id: hero.id
-          }));
+          tmpArray.push(JSON.stringify(this.getHeroDataModel(hero)));
         });
 
         // Both players broadcasting their details to opponent players
@@ -69,6 +62,28 @@ class MyRoom extends MyRoomGameLogic {
       this.lock();
     }
 
+  }
+
+  getHeroDataModel(hero) {
+    return {
+      name: hero.name,
+      mass: hero.mass,
+      size: hero.size,
+      rating: hero.rating,
+      playerHitDamage: hero.playerHitDamage,
+      playerHealth: hero.playerHealth,
+      restitution: hero.restitution,
+      friction: hero.friction,
+      playerDamageRPSProbability: {
+        rock: hero.playerDamageRPSProbability.get('rock'),
+        paper: hero.playerDamageRPSProbability.get('paper'),
+        scissor: hero.playerDamageRPSProbability.get('scissor')
+      },
+      playerLowestDamagePercentage: hero.playerLowestDamagePercentage,
+      playerHighestDamagePercentage: hero.playerHighestDamagePercentage,
+      specialPowerUp: hero.specialPowerUp,
+      id: hero.id
+    }
   }
 
   onLeave(client, consented) {
