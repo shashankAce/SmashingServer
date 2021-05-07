@@ -11,21 +11,21 @@ class MyRoomGameLogic extends colyseus.Room {
 
         this.maxClients = 2;
         this.playerCount = 0;
-        this.durationCount = Constants.ROUND_DURATION;
         this.durationTimer = 0;
         this.isReady = false;
         this.isTimerActive = false;
 
         //Todo later
         this.pendingActions = [];
-
-        //
         this.clientsReadyCount = 0;
     }
 
     startGame() {
         this.isReady = true;
         this.isTimerActive = true;
+
+        this.state.startGame();
+        this.state.timerCount = Constants.ROUND_DURATION;
         this.startTimer();
     }
 
@@ -53,39 +53,36 @@ class MyRoomGameLogic extends colyseus.Room {
     updateRoundTime() {
         if (this.isTimerActive) {
 
-            this.broadcast("onClockUpdate", {
-                time: this.durationCount
-            });
+            console.log(this.state.timerCount);
+            
+            this.state.timerCount--;
 
-            if (this.durationCount <= 0) {
+            if (this.state.timerCount < 0) {
                 //Switch Player Turn
-                this.isTimerActive = false;
+                this.setTimerActive(false);
                 this.switchPlayerTurn();
             }
-
-            this.durationCount--;
         }
     }
 
     switchPlayerTurn() {
         // Switching turn to next player
-        this.durationCount = Constants.ROUND_DURATION;
+        this.state.timerCount = Constants.ROUND_DURATION;
         this.state.changePlayerTurn();
 
-        let plyr = this.state.getActivePlayer();
+        /* let plyr = this.state.getActivePlayer();
         this.broadcast("switchTurn", {
             name: plyr.name,
             playerTurnId: plyr.sessionId,
             heroId: plyr.getActiveHero().id
-        });
+        }); */
         this.setTimerActive(true);
     }
 }
 
 schema.defineTypes(MyRoomGameLogic, {
     playerCount: 'number',
-    durationCount: 'number',
-    durationTimer: 'number'
+    durationTimer: 'number',
 });
 
 exports.MyRoomGameLogic = MyRoomGameLogic;

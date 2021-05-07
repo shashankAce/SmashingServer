@@ -5,20 +5,17 @@ const State = require('./schema/State').State;
 const Player = require('./schema/Player').Player;
 const Hero = require('./schema/Hero').Hero;
 const MyRoomGameLogic = require('./MyRoomGameLogic').MyRoomGameLogic;
+const { Constants } = require('../Constants');
 
 class MyRoom extends MyRoomGameLogic {
 
   onCreate(options) {
 
-    let state = new State();
-    state.phase = 'waiting';
-    state.playerTurn = 1; // 1 or 2
-    state.winningPlayer = -1;
-
-    this.setState(state);
+    this.setState(new State());
     console.log("Room created");
 
-    this.activeListeners();
+    this.onMessage("action", (client, message) => this.playerAction(client, message));
+
   }
 
   onJoin(client, options) {
@@ -28,8 +25,7 @@ class MyRoom extends MyRoomGameLogic {
 
     console.log('client joined', client.sessionId);
 
-    let player = new Player(options.herosArray);
-    player.sessionId = client.sessionId;
+    let player = new Player(client.sessionId, options);
     player.seat = this.playerCount + 1;
     player.name = options.name;
 
@@ -39,57 +35,17 @@ class MyRoom extends MyRoomGameLogic {
     ++this.playerCount;
 
     if (this.playerCount == this.maxClients) {
-      this.state.phase = 'started';
+      this.state.phase = Constants.WAITING;
 
-
-      this.state.players.forEach((plyr, key) => {
-        let tmpArray = [];
-
-        plyr.herosMap.forEach((hero, key) => {
-          tmpArray.push(JSON.stringify(this.getHeroDataModel(hero)));
-        });
-
-        // Both players broadcasting their details to opponent players
-        this.broadcast("GameStarted", {
-          name: plyr.name,
-          id: plyr.sessionId,
-          seatNo: plyr.seat,
-          herosArray: tmpArray,
-          playerTurnId: this.state.getActivePlayer().sessionId
-        }, { except: this.getClientById(plyr.sessionId) });
-
-      });
       this.lock();
     }
 
   }
 
-  getHeroDataModel(hero) {
-    return {
-      name: hero.name,
-      mass: hero.mass,
-      size: hero.size,
-      rating: hero.rating,
-      playerHitDamage: hero.playerHitDamage,
-      playerHealth: hero.playerHealth,
-      restitution: hero.restitution,
-      friction: hero.friction,
-      playerDamageRPSProbability: {
-        rock: hero.playerDamageRPSProbability.get('rock'),
-        paper: hero.playerDamageRPSProbability.get('paper'),
-        scissor: hero.playerDamageRPSProbability.get('scissor')
-      },
-      playerLowestDamagePercentage: hero.playerLowestDamagePercentage,
-      playerHighestDamagePercentage: hero.playerHighestDamagePercentage,
-      specialPowerUp: hero.specialPowerUp,
-      id: hero.id
-    }
-  }
-
   onLeave(client, consented) {
-    if (this.state.players[client.sessionId]) {
-      this.state.players.delete(client.sessionId);
+    if (this.state.players.get(client.sessionId)) {
 
+      this.state.players.delete(client.sessionId);
       // Game Logic
       this.playerCount--;
       this.clientsReadyCount--;
@@ -105,67 +61,59 @@ class MyRoom extends MyRoomGameLogic {
     console.log('Room disposed');
   }
 
-  chatMessage(client, message) {
-    if (!message)
-      return;
-    if (!this.state.players[client.sessionId])
-      return;
-    let command = message['command'];
-    //switch (command)
+  playerAction(client, message) {
 
-    this.broadcast("chatMessage", {
-      clientId: client.sessionId,
-      message: message
-    });
+    if (!message) return;
+    let player = this.state.players.get(client.sessionId);
+    if (!player) return;
+
+    let command = message.command;
+
+    switch (command) {
+      case "TOUCH_LOCATION":
+        this.state.touchLocation = message["pos"];
+        break;
+
+      case "CLIENT_READY":
+        let readyCount = 0;
+        this.state.players.forEach((plyr, sessionId) => {
+          if (plyr.isReady) {
+            ++readyCount;
+          }
+          else {
+            if (sessionId == client.sessionId) {
+              plyr.isReady = true;
+              ++readyCount;
+            }
+          }
+        });
+        if (readyCount == this.maxClients) {
+          this.startGame();
+        }
+        break;
+
+      case "TURN_OVER":
+        // this.switchPlayerTurn();
+        break;
+
+      case "SHOOT":
+        this.state.getActivePlayer().changeHeroTurn();
+        console.log("Shoot by " + this.state.getActivePlayer().name);
+        this.setTimerActive(false);
+        break;
+
+      case "HERO_UPDATE":
+        this.state.players.forEach((plyr, sessionId) => {
+          plyr.updateHero(message.data);
+        });
+        break;
+
+      default:
+        console.log("Command -" + command + " not found");
+        break;
+    }
   }
 
-  activeListeners() {
 
-    this.onMessage("touchLocation", (client, data) => {
-      if (this.state.players[client.sessionId]) {
-        //console.log(this.state.players[client.sessionId].name, data);
-        this.broadcast("touchLocation", data, { except: client });
-      }
-    });
-
-    this.onMessage("positionUpdate", (client, data) => {
-      if (this.state.players[client.sessionId]) {
-        this.broadcast("positionUpdate", data, { except: client });
-      }
-    });
-
-    this.onMessage("shootUpdate", (client, data) => {
-      // changing hero turn after a player has played
-      this.state.getActivePlayer().changeHeroTurn();
-      console.log("Shoot by " + this.state.getActivePlayer().name);
-      this.setTimerActive(false);
-
-      this.broadcast("shootUpdate", { shooterId: client.sessionId }, { except: client });
-    });
-
-    this.onMessage("turnOver", (client, data) => {
-      this.switchPlayerTurn();
-    });
-
-    this.onMessage("clientReady", (client, data) => {
-      // Sending data to that client who is ready
-
-      let otherClient = this.clients.find(element => element.sessionId != client.sessionId);
-      let plyr = this.state.getActivePlayer();
-      this.broadcast("playerTurnUpdate", {
-        name: plyr.name,
-        playerTurnId: plyr.sessionId,
-        heroId: plyr.getActiveHero().id,
-      }, { except: otherClient });
-
-      // Start the game if both the clients are ready
-      this.clientsReadyCount++;
-      if (this.clientsReadyCount == this.maxClients) {
-        this.startGame();
-      }
-    });
-
-  }
 }
-
 exports.MyRoom = MyRoom;

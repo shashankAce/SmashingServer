@@ -7,6 +7,9 @@ class Hero extends schema.Schema {
 
         prop = JSON.parse(prop);
 
+        this.x = 0;
+        this.y = 0;
+
         this.name = prop.name;
         this.mass = prop.mass;
         this.restitution = prop.restitution;
@@ -23,6 +26,7 @@ class Hero extends schema.Schema {
         this.playerLowestDamagePercentage = prop.playerLowestDamagePercentage;
         this.playerHighestDamagePercentage = prop.playerHighestDamagePercentage;
         this.playerHealth = prop.playerHealth;
+        this.currentHealth = prop.playerHealth;
         this.specialPowerUp = prop.specialPowerUp;
 
         // Additonal properties
@@ -31,10 +35,25 @@ class Hero extends schema.Schema {
         this.isShieldActive = false;
         this.isRageActive = false;
         this.id = prop.id;
+    }
 
+    updateFromClient(data) {
+        this.isShieldActive = data.isShieldActive;
+        this.currentHealth = data.currentHealth;
+        this.isDead = data.isDead;
+        this.x = data.pos.x;
+        this.y = data.pos.y;
+    }
+
+    setPosition(pos) {
+        this.x = pos.x;
+        this.y = pos.y;
     }
 }
+
 schema.defineTypes(Hero, {
+    x: 'number',
+    y: 'number',
     name: 'string',
     mass: 'number',
     restitution: 'number',
@@ -46,6 +65,7 @@ schema.defineTypes(Hero, {
     playerLowestDamagePercentage: 'number',
     playerHighestDamagePercentage: 'number',
     playerHealth: 'number',
+    currentHealth: 'number',
     specialPowerUp: 'string',
 
     // Additional properties
@@ -53,6 +73,7 @@ schema.defineTypes(Hero, {
     isDead: 'boolean',
     isShieldActive: 'boolean',
     isRageActive: 'boolean',
-    id: 'string'
+    id: 'string',
+    playerSessionId: 'string',
 });
 exports.Hero = Hero;
