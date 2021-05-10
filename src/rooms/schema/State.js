@@ -3,7 +3,6 @@ const schema = require('@colyseus/schema');
 const Player = require('../schema/Player').Player;
 const Constants = require('../../Constants').Constants;
 
-// Our custom game state, an ArraySchema of type Player only at the moment
 
 class State extends schema.Schema {
   constructor() {
@@ -20,7 +19,7 @@ class State extends schema.Schema {
     this.touchLocation = { x: 0, y: 0 };
   }
 
-  startGame(){
+  startGame() {
     this.phase = Constants.STARTED;
     this.currentTurn = this.playersIdArray[this.playerTurn - 1];
   }
@@ -32,7 +31,7 @@ class State extends schema.Schema {
   changePlayerTurn() {
     // Change previous active player's hero turn
     this.getActivePlayer().changeHeroTurn();
-    
+
     // Change player turn
     this.playerTurn = this.playerTurn > 1 ? 1 : 2;
     this.currentTurn = this.playersIdArray[this.playerTurn - 1];
@@ -51,5 +50,6 @@ schema.defineTypes(State, {
   phase: 'string',
   winningPlayer: 'number',
   timerCount: 'number',
+  touchLocation: { map: 'number' }
 });
 exports.State = State;

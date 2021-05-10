@@ -1,5 +1,5 @@
 const Constants = {
-    ROUND_DURATION: 10,
+    ROUND_DURATION: 100,
     MATCH_MAKING: 'matchmaking',
     WAITING: 'waiting',
     STARTED: 'started'

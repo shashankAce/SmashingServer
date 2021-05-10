@@ -15,8 +15,6 @@ class MyRoomGameLogic extends colyseus.Room {
         this.isReady = false;
         this.isTimerActive = false;
 
-        //Todo later
-        this.pendingActions = [];
         this.clientsReadyCount = 0;
     }
 
@@ -53,8 +51,6 @@ class MyRoomGameLogic extends colyseus.Room {
     updateRoundTime() {
         if (this.isTimerActive) {
 
-            console.log(this.state.timerCount);
-            
             this.state.timerCount--;
 
             if (this.state.timerCount < 0) {
@@ -69,13 +65,6 @@ class MyRoomGameLogic extends colyseus.Room {
         // Switching turn to next player
         this.state.timerCount = Constants.ROUND_DURATION;
         this.state.changePlayerTurn();
-
-        /* let plyr = this.state.getActivePlayer();
-        this.broadcast("switchTurn", {
-            name: plyr.name,
-            playerTurnId: plyr.sessionId,
-            heroId: plyr.getActiveHero().id
-        }); */
         this.setTimerActive(true);
     }
 }
@@ -84,5 +73,4 @@ schema.defineTypes(MyRoomGameLogic, {
     playerCount: 'number',
     durationTimer: 'number',
 });
-
 exports.MyRoomGameLogic = MyRoomGameLogic;

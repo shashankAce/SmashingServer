@@ -25,7 +25,12 @@ class Player extends schema.Schema {
 
   updateHero(data) {
     this.herosMap.forEach((hero, id) => {
-      data[id] && hero.updateFromClient(data[id]);
+      if (data[id]) {
+        hero.updateFromClient(data[id]);
+        if (hero.isDead) {
+          this.changeHeroTurn();
+        }
+      }
     });
   }
 

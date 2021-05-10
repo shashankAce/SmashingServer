@@ -51,7 +51,8 @@ class MyRoom extends MyRoomGameLogic {
       this.clientsReadyCount--;
       this.isReady = false;
       this.isTimerActive = false;
-      this.state = 'waiting';
+      this.state.phase = Constants.WAITING;
+
 
       console.log('client left', client.sessionId);
     }
@@ -71,7 +72,8 @@ class MyRoom extends MyRoomGameLogic {
 
     switch (command) {
       case "TOUCH_LOCATION":
-        this.state.touchLocation = message["pos"];
+        this.state.touchLocation = { x: message.pos.x, y: message.pos.y };
+        this.broadcast('TOUCH_LOCATION', message.pos, { except: client });
         break;
 
       case "CLIENT_READY":
@@ -93,13 +95,14 @@ class MyRoom extends MyRoomGameLogic {
         break;
 
       case "TURN_OVER":
-        // this.switchPlayerTurn();
+        this.switchPlayerTurn();
         break;
 
       case "SHOOT":
         this.state.getActivePlayer().changeHeroTurn();
-        console.log("Shoot by " + this.state.getActivePlayer().name);
         this.setTimerActive(false);
+
+        console.log("Shoot by " + this.state.getActivePlayer().name);
         break;
 
       case "HERO_UPDATE":
