@@ -37,12 +37,19 @@ class Hero extends schema.Schema {
         this.id = prop.id;
     }
 
-    updateFromClient(data) {
-        this.isShieldActive = data.isShieldActive;
-        this.currentHealth = data.currentHealth;
-        this.isDead = data.isDead;
-        this.x = data.pos.x;
-        this.y = data.pos.y;
+    updateFromClient(dataObject) {
+        this.isShieldActive = dataObject.isShieldActive;
+        this.currentHealth = dataObject.currentHealth;
+        this.x = dataObject.x;
+        this.y = dataObject.y;
+
+        // Logic after attribute update
+        if(this.currentHealth <= 0){
+            this.isDead = true;
+            this.isShieldActive = false;
+            this.isRageActive = false;
+            this.isActive = false;
+        }
     }
 
     setPosition(pos) {
@@ -67,10 +74,10 @@ schema.defineTypes(Hero, {
     playerHealth: 'number',
     currentHealth: 'number',
     specialPowerUp: 'string',
+    isDead: 'boolean',
 
     // Additional properties
     isActive: 'boolean',
-    isDead: 'boolean',
     isShieldActive: 'boolean',
     isRageActive: 'boolean',
     id: 'string',

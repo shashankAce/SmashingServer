@@ -23,15 +23,25 @@ class Player extends schema.Schema {
     }
   }
 
-  updateHero(data) {
-    this.herosMap.forEach((hero, id) => {
-      if (data[id]) {
-        hero.updateFromClient(data[id]);
-        if (hero.isDead) {
-          this.changeHeroTurn();
-        }
+  addHeros(data) {
+    for (let index = 0; index < data.herosArray.length; index++) {
+      let hero = new Hero(data.herosArray[index]);
+      hero.playerSessionId = this.sessionId;
+      //
+      this.herosMap.set(hero.id, hero);
+      this.heroIdArray.push(hero.id);
+    }
+  }
+
+  updateHero(dataArray) {
+
+    for (let index = 0; index < dataArray.length; index++) {
+      const element = dataArray[index];
+      const hero = this.herosMap.get(element.id);
+      if (hero) {
+        hero.updateFromClient(element);
       }
-    });
+    }
   }
 
   changeHeroTurn() {

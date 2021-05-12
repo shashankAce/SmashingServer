@@ -99,16 +99,21 @@ class MyRoom extends MyRoomGameLogic {
         break;
 
       case "SHOOT":
-        this.state.getActivePlayer().changeHeroTurn();
-        this.setTimerActive(false);
-
-        console.log("Shoot by " + this.state.getActivePlayer().name);
+        let player = this.state.getActivePlayer();
+        if (player) {
+          this.state.getActivePlayer().changeHeroTurn();
+          this.setTimerActive(false);
+          console.log("Shoot by " + this.state.getActivePlayer().name);
+        }
         break;
 
       case "HERO_UPDATE":
         this.state.players.forEach((plyr, sessionId) => {
-          plyr.updateHero(message.data);
+          plyr.updateHero(message.data[sessionId]);
         });
+        // message.data is array of objects { hero data } seperated with client id
+        // Broadcast hero data to other client
+        this.broadcast('POS_CHANGE', message.data, { except: client });
         break;
 
       default:
