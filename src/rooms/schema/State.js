@@ -50,6 +50,7 @@ schema.defineTypes(State, {
   phase: 'string',
   winningPlayer: 'number',
   timerCount: 'number',
-  touchLocation: { map: 'number' }
+  touchLocation: { map: 'number' },
+  gameMapName: 'string'
 });
 exports.State = State;
