@@ -1,4 +1,3 @@
-
 const schema = require('@colyseus/schema');
 const Player = require('../schema/Player').Player;
 const GameMap = require('../schema/GameMap').GameMap;
@@ -17,7 +16,10 @@ class State extends schema.Schema {
     this.winningPlayer = -1;
     //
     this.timerCount = Constants.ROUND_DURATION;
-    this.touchLocation = { x: 0, y: 0 };
+    this.touchLocation = {
+      x: 0,
+      y: 0
+    };
 
     this.gameMap = new schema.MapSchema();
     for (const key in Constants.map) {
@@ -85,14 +87,15 @@ class State extends schema.Schema {
             map.mode.get('rightEnabled') = Math.floor(Math.random() * 2) == 0 ? true : false;
             break;
 
-          default: console.log('Error');
+          default:
+            console.log('Error');
             break;
         }
 
       }
     }
+    this.gameMap.get(mapName).isEnabled = true;
     this.currentMap = mapName;
-
   }
 
   startGame() {
@@ -119,15 +122,21 @@ class State extends schema.Schema {
 }
 
 schema.defineTypes(State, {
-  players: { map: Player },
+  players: {
+    map: Player
+  },
   playersIdArray: ['string'],
   playerTurn: 'number',
   currentTurn: 'string',
   phase: 'string',
   winningPlayer: 'number',
   timerCount: 'number',
-  touchLocation: { map: 'number' },
-  gameMap: { map: GameMap },
+  touchLocation: {
+    map: 'number'
+  },
+  gameMap: {
+    map: GameMap
+  },
   currentMap: 'string'
 });
 exports.State = State;
