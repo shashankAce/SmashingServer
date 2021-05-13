@@ -18,7 +18,7 @@ const Constants = {
       "isEnabled": false
     },
     "sawMode": {
-      "isEnabled": true,
+      "isEnabled": false,
       "damage": 100,
       "mode": {
         "leftEnabled": true,

@@ -36,13 +36,14 @@ class State extends schema.Schema {
 
   generateGameMap() {
 
-    let mapName;
+    let mapName = 'blank';
     for (let name in Constants.map) {
       if (Constants.map[name].isEnabled == true) {
 
         if (name == 'random') {
           if (Constants.map[name].selectedMap.length < 1) {
             this.gameMap = 'blank';
+            mapName = this.gameMap;
             break;
           }
           mapName = Constants.map[name].selectedMap[Math.floor(Math.random() * Constants.map[name].selectedMap.length)];
@@ -93,8 +94,8 @@ class State extends schema.Schema {
         }
 
       }
+      this.gameMap.get(mapName).isEnabled = true;
     }
-    this.gameMap.get(mapName).isEnabled = true;
     this.currentMap = mapName;
   }
 
