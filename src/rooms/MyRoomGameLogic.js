@@ -26,25 +26,6 @@ class MyRoomGameLogic extends colyseus.Room {
     this.state.timerCount = Constants.ROUND_DURATION;
     this.startTimer();
 
-    this.checkMapDetails();
-  }
-
-  checkMapDetails() {
-    let map;
-    switch (this.state.currentMap) {
-      case 'fireMode':
-        {
-          map = this.state.gameMap.get(this.state.currentMap);
-          if (map.mode.get('leftEnabled'))
-            console.log("leftFireEnabled");
-          if (map.mode.get('rightEnabled'))
-            console.log("rightEnabled");
-
-        }
-        break;
-      default:
-
-    }
   }
 
   startTimer() {

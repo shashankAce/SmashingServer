@@ -21,6 +21,10 @@ class MapController extends schema.Schema {
      */
     setMap(map) {
         this.map = map;
+
+    }
+
+    initMap() {
         if (this.map.name == 'fireMode') {
             if (this.map.mode.get('leftEnabled')) {
                 this.enableLeftFire();
