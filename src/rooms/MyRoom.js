@@ -32,21 +32,11 @@ class MyRoom extends MyRoomGameLogic {
     this.state.players.set(client.sessionId, player);
     this.state.playersIdArray.push(client.sessionId);
 
-    /* if (this.playerCount < 1) {
-      let mapName;
-      if (options.mapData.random) {
-        mapName = options.mapData.map[Math.floor(Math.random() * options.mapData.map.length)];
-      } else {
-        mapName = options.mapData.map[0];
-      }
-      this.state.gameMapName = mapName;
-    } */
-
     ++this.playerCount;
 
     if (this.playerCount == this.maxClients) {
       this.state.phase = Constants.WAITING;
-
+      this.state.currentTurn = this.state.playersIdArray[this.state.playerTurn - 1];
       this.lock();
     }
 
