@@ -34,8 +34,11 @@ class MyRoomGameLogic extends colyseus.Room {
     switch (this.state.currentMap) {
       case 'fireMode':
         {
-          map = this.gameMap.get(this.state.currentMap);
-          // if (map.mode.get('leftEnabled'))
+          map = this.state.gameMap.get(this.state.currentMap);
+          if (map.mode.get('leftEnabled'))
+            console.log("leftFireEnabled");
+          if (map.mode.get('rightEnabled'))
+            console.log("rightEnabled");
 
         }
         break;
