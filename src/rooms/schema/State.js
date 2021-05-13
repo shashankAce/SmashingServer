@@ -1,6 +1,7 @@
 const schema = require('@colyseus/schema');
 const Player = require('../schema/Player').Player;
-const GameMap = require('../schema/GameMap').GameMap;
+const GameMap = require('./mapManager/GameMap').GameMap;
+const MapController = require('./mapManager/MapController').MapController;
 const Constants = require('../../Constants').Constants;
 
 
@@ -22,15 +23,18 @@ class State extends schema.Schema {
     };
 
     this.gameMap = new schema.MapSchema();
-    for (const key in Constants.map) {
-      if (key != 'random') {
-
-        const map = new GameMap(Constants.map[key]);
-        this.gameMap.set(key, map);
+    for (const mapName in Constants.map) {
+      if (mapName != 'random') {
+        const map = new GameMap(Constants.map[mapName], mapName);
+        this.gameMap.set(mapName, map);
       }
     }
 
     this.generateGameMap();
+
+    this.mapController = new MapController();
+    if (this.currentMap != 'blank')
+      this.mapController.setMap(this.gameMap.get(this.currentMap));
 
   }
 
@@ -42,8 +46,8 @@ class State extends schema.Schema {
 
         if (name == 'random') {
           if (Constants.map[name].selectedMap.length < 1) {
-            this.gameMap = 'blank';
-            mapName = this.gameMap;
+            mapName = 'blank';
+            this.gameMap = mapName;
             break;
           }
           mapName = Constants.map[name].selectedMap[Math.floor(Math.random() * Constants.map[name].selectedMap.length)];
@@ -138,6 +142,7 @@ schema.defineTypes(State, {
   gameMap: {
     map: GameMap
   },
-  currentMap: 'string'
+  currentMap: 'string',
+  mapController: MapController
 });
 exports.State = State;

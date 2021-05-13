@@ -6,7 +6,7 @@ const Constants = {
   map: {
     "random": {
       "isEnabled": false,
-      "selectedMap": ["portalMode", "gravityMode", "snowMode", "sawMode", "fireMode", "springMode", "bombMode", "windMode", ]
+      "selectedMap": ["portalMode", "gravityMode", "snowMode", "sawMode", "fireMode", "springMode", "bombMode", "windMode",]
     },
     "portalMode": {
       "isEnabled": false
@@ -26,7 +26,7 @@ const Constants = {
       }
     },
     "fireMode": {
-      "isEnabled": false,
+      "isEnabled": true,
       "damage": 100,
       "mode": {
         "leftEnabled": true,

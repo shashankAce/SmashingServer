@@ -1,9 +1,11 @@
 const schema = require('@colyseus/schema');
 
 class GameMap extends schema.Schema {
-  constructor(data) {
+
+  constructor(data, mapName) {
     super();
 
+    this.name = mapName;
     this.isEnabled = false;
     this.timer = data.timer || -1;
     this.damage = data.damage || -1;
@@ -27,6 +29,7 @@ class GameMap extends schema.Schema {
 }
 
 schema.defineTypes(GameMap, {
+  name: 'string',
   isEnabled: 'boolean',
   timer: 'number',
   damage: 'number',
