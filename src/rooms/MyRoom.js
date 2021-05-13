@@ -1,11 +1,12 @@
-
 const colyseus = require('colyseus');
 const schema = require('@colyseus/schema');
 const State = require('./schema/State').State;
 const Player = require('./schema/Player').Player;
 const Hero = require('./schema/Hero').Hero;
 const MyRoomGameLogic = require('./MyRoomGameLogic').MyRoomGameLogic;
-const { Constants } = require('../Constants');
+const {
+  Constants
+} = require('../Constants');
 
 class MyRoom extends MyRoomGameLogic {
 
@@ -72,8 +73,19 @@ class MyRoom extends MyRoomGameLogic {
 
     switch (command) {
       case "TOUCH_LOCATION":
-        this.state.touchLocation = { x: message.pos.x, y: message.pos.y };
-        this.broadcast('TOUCH_LOCATION', message.pos, { except: client });
+        this.state.touchLocation = {
+          x: message.pos.x,
+          y: message.pos.y
+        };
+        this.broadcast('TOUCH_LOCATION', message.pos, {
+          except: client
+        });
+        break;
+
+      case "BOMB_POSITION":
+        this.broadcast('BOMB_POSITION', message.pos, {
+          except: client
+        });
         break;
 
       case "CLIENT_READY":
@@ -81,8 +93,7 @@ class MyRoom extends MyRoomGameLogic {
         this.state.players.forEach((plyr, sessionId) => {
           if (plyr.isReady) {
             ++readyCount;
-          }
-          else {
+          } else {
             if (sessionId == client.sessionId) {
               plyr.isReady = true;
               ++readyCount;
@@ -113,7 +124,9 @@ class MyRoom extends MyRoomGameLogic {
         });
         // message.data is array of objects { hero data } seperated with client id
         // Broadcast hero data to other client
-        this.broadcast('POS_CHANGE', message.data, { except: client });
+        this.broadcast('POS_CHANGE', message.data, {
+          except: client
+        });
         break;
 
       default:

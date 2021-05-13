@@ -12,6 +12,7 @@ class MapController extends schema.Schema {
     this.rightTimerCoolDown = 7;
     this.rightTimerActivateTimer = 12;
 
+    this.bombTimer = 0;
     /* this.timer = setTimeout(() => {
 
     }, this.fireTimeInSec * 1000); */
@@ -35,6 +36,18 @@ class MapController extends schema.Schema {
         this.enableRightFire();
       }
     }
+    if (this.map.name == 'bombMode') {
+      this.timer = this.map.timer;
+      this.bombTimerCountDown();
+    }
+  }
+
+  bombTimerCountDown() {
+    this.bombTimer = setInterval(() => {
+      this.timer--;
+      if (this.timer < 0)
+        this.timer = this.map.timer;
+    }, 1000);
   }
 
   enableLeftFire() {
@@ -69,6 +82,7 @@ class MapController extends schema.Schema {
 schema.defineTypes(MapController, {
   map: GameMap,
   leftFireActivate: 'boolean',
-  rightFireActivate: 'boolean'
+  rightFireActivate: 'boolean',
+  timer: 'number'
 });
 exports.MapController = MapController;
