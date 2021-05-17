@@ -71,6 +71,7 @@ schema.defineTypes(Player, {
   herosMap: { map: Hero },
   heroCount: 'number',
   activeHeroIndex: 'number',
-  heroIdArray: ['string']
+  heroIdArray: ['string'],
+  connected: 'boolean'
 });
 exports.Player = Player;

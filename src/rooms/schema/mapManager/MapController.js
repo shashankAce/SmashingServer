@@ -5,6 +5,7 @@ const GameMap = require('./GameMap').GameMap;
 class MapController extends schema.Schema {
   constructor() {
     super();
+
     this.leftTimer = 0;
     this.leftTimerCoolDown = 7;
     this.leftTimerActivateTimer = 10;
@@ -13,9 +14,7 @@ class MapController extends schema.Schema {
     this.rightTimerActivateTimer = 12;
 
     this.bombTimer = 0;
-    /* this.timer = setTimeout(() => {
 
-    }, this.fireTimeInSec * 1000); */
 
   }
 
@@ -75,6 +74,8 @@ class MapController extends schema.Schema {
       this.enableRightFire();
     }, this.rightTimerActivateTimer * 1000);
   }
+
+  
 
 
 }

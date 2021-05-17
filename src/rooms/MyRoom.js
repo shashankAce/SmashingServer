@@ -12,6 +12,8 @@ class MyRoom extends MyRoomGameLogic {
 
   onCreate(options) {
 
+    // this.setPatchRate(10); // patchRate in millisecond
+
     this.setState(new State());
     console.log("Room created");
 
@@ -43,9 +45,26 @@ class MyRoom extends MyRoomGameLogic {
 
   }
 
-  onLeave(client, consented) {
-    if (this.state.players.get(client.sessionId)) {
+  async onLeave(client, consented) {
 
+
+    // flag client as inactive for other users
+    this.state.players[client.sessionId].connected = false;
+
+    try {
+      if (consented) {
+        throw new Error("consented leave");
+      }
+
+      // allow disconnected client to reconnect into this room until 20 seconds
+      await this.allowReconnection(client, 60);
+
+      // client returned! let's re-activate it.
+      this.state.players[client.sessionId].connected = true;
+
+    } catch (e) {
+
+      // 20 seconds expired. let's remove the client.
       this.state.players.delete(client.sessionId);
       // Game Logic
       this.playerCount--;
@@ -53,10 +72,9 @@ class MyRoom extends MyRoomGameLogic {
       this.isReady = false;
       this.isTimerActive = false;
       this.state.phase = Constants.WAITING;
-
-
       console.log('client left', client.sessionId);
     }
+
   }
 
   onDispose() {
