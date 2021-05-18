@@ -78,6 +78,9 @@ class State extends schema.Schema {
       if (mapName == 'fireMode' || mapName == 'windMode' || mapName == 'sawMode' || mapName == 'springMode') {
         this.gameMap.leftEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
         this.gameMap.rightEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
+        if(!this.gameMap.leftEnabled && !this.gameMap.rightEnabled){
+          this.gameMap.leftEnabled = true;
+        }
       }
 
       if (mapName == 'springMode') {
