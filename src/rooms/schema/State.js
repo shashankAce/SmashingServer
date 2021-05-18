@@ -75,18 +75,36 @@ class State extends schema.Schema {
 
     if (mapName != 'blank' && Constants.map['random'].isEnabled == true) {
 
-      if (mapName == 'fireMode' || mapName == 'windMode' || mapName == 'sawMode' || mapName == 'springMode') {
+      if (mapName == 'fireMode' || mapName == 'windMode' || mapName == 'sawMode') {
         this.gameMap.leftEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
         this.gameMap.rightEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
-        if(!this.gameMap.leftEnabled && !this.gameMap.rightEnabled){
-          this.gameMap.leftEnabled = true;
+
+        while (!this.gameMap.leftEnabled && !this.gameMap.rightEnabled) {
+          this.gameMap.leftEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
+          this.gameMap.rightEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
         }
       }
 
       if (mapName == 'springMode') {
-        this.gameMap.topEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
-        this.gameMap.bottomEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
-        this.gameMap.centerEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
+        switch (Math.floor(Math.random() * 3)) {
+          case 0:
+            {
+              this.gameMap.leftEnabled = true;
+              this.gameMap.rightEnabled = true;
+            }
+            break;
+          case 1:
+            {
+              this.gameMap.topEnabled = true;
+              this.gameMap.bottomEnabled = true;
+            }
+            break;
+          case 2:
+            this.gameMap.centerEnabled = true;
+            break;
+          default:
+            this.gameMap.centerEnabled = true;
+        }
       }
     }
 
