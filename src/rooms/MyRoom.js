@@ -102,7 +102,7 @@ class MyRoom extends MyRoomGameLogic {
         break;
 
       case "BOMB_POSITION":
-        this.state.activeMap.updateFromClient(message.pos);
+        this.state.gameMap.updateFromClient(message.pos);
         this.broadcast('BOMB_POSITION', message.pos, {
           except: client
         });
