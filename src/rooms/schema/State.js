@@ -88,16 +88,12 @@ class State extends schema.Schema {
       if (mapName == 'springMode') {
         switch (Math.floor(Math.random() * 3)) {
           case 0:
-            {
-              this.gameMap.leftEnabled = true;
-              this.gameMap.rightEnabled = true;
-            }
+            this.gameMap.leftEnabled = true;
+            this.gameMap.rightEnabled = true;
             break;
           case 1:
-            {
-              this.gameMap.topEnabled = true;
-              this.gameMap.bottomEnabled = true;
-            }
+            this.gameMap.topEnabled = true;
+            this.gameMap.bottomEnabled = true;
             break;
           case 2:
             this.gameMap.centerEnabled = true;
