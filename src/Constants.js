@@ -26,7 +26,7 @@ const Constants = {
       }
     },
     "fireMode": {
-      "isEnabled": false,
+      "isEnabled": true,
       "damage": 100,
       "mode": {
         "leftEnabled": true,
@@ -44,7 +44,7 @@ const Constants = {
       }
     },
     "bombMode": {
-      "isEnabled": true,
+      "isEnabled": false,
       "timer": 15,
       "damage": 100
     },
