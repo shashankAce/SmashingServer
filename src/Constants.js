@@ -52,7 +52,7 @@ const Constants = {
       "isEnabled": false,
       "mode": {
         "leftEnabled": true,
-        "rightEnabled": true
+        "rightEnabled": false
       }
     },
   },

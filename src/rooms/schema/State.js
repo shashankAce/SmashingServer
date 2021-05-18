@@ -93,7 +93,8 @@ class State extends schema.Schema {
   startGame() {
     this.phase = Constants.STARTED;
     this.currentTurn = this.playersIdArray[this.playerTurn - 1];
-    this.gameMap.initMap();
+    if (this.currentMap == 'fireMode' || this.currentMap == 'bombMode')
+      this.gameMap.initMap();
   }
 
   pauseGame() {

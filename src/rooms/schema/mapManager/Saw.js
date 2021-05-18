@@ -1,19 +1,18 @@
-
 const schema = require('@colyseus/schema');
 const GameMap = require('./GameMap').GameMap;
 
 class Saw extends GameMap {
 
-    constructor(data, mapName) {
-        super(data, mapName);
+  constructor(data, mapName) {
+    super(data, mapName);
 
-        this.leftEnabled = data.leftEnabled || false;
-        this.rightEnabled = data.rightEnabled || false;
-    }
+    this.leftEnabled = data["mode"].leftEnabled || false;
+    this.rightEnabled = data["mode"].rightEnabled || false;
+  }
 }
 
 schema.defineTypes(Saw, {
-    leftEnabled: 'boolean',
-    rightEnabled: 'boolean',
+  leftEnabled: 'boolean',
+  rightEnabled: 'boolean',
 });
 exports.Saw = Saw;
