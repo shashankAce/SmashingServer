@@ -93,17 +93,16 @@ class State extends schema.Schema {
   startGame() {
     this.phase = Constants.STARTED;
     this.currentTurn = this.playersIdArray[this.playerTurn - 1];
-    // this.mapController.initMap();
-    this.activeMap.initMap();
+    this.gameMap.initMap();
   }
 
   pauseGame() {
-    this.activeMap.pause();
+    this.gameMap.pause();
     this.phase = Constants.WAITING;
   }
 
   stopGame() {
-    this.activeMap.stop();
+    this.gameMap.stop();
     this.phase = Constants.WAITING;
   }
 
