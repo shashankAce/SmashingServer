@@ -49,7 +49,7 @@ class MyRoom extends MyRoomGameLogic {
 
 
     // flag client as inactive for other users
-    this.state.players[client.sessionId].connected = false;
+    /* this.state.players[client.sessionId].connected = false;
 
     try {
       if (consented) {
@@ -57,23 +57,24 @@ class MyRoom extends MyRoomGameLogic {
       }
 
       // allow disconnected client to reconnect into this room until 20 seconds
-      await this.allowReconnection(client, 60);
+      await this.allowReconnection(client, 20);
 
       // client returned! let's re-activate it.
       this.state.players[client.sessionId].connected = true;
 
-    } catch (e) {
+    } catch (e) { */
 
-      // 20 seconds expired. let's remove the client.
-      this.state.players.delete(client.sessionId);
-      // Game Logic
-      this.playerCount--;
-      this.clientsReadyCount--;
-      this.isReady = false;
-      this.isTimerActive = false;
-      this.state.phase = Constants.WAITING;
-      console.log('client left', client.sessionId);
-    }
+    // 20 seconds expired. let's remove the client.
+    this.state.players.delete(client.sessionId);
+    // Game Logic
+    this.playerCount--;
+    this.clientsReadyCount--;
+    this.isReady = false;
+    this.isTimerActive = false;
+
+    this.state.stopGame();
+    console.log('client left', client.sessionId);
+    // }
 
   }
 
@@ -101,6 +102,7 @@ class MyRoom extends MyRoomGameLogic {
         break;
 
       case "BOMB_POSITION":
+        this.state.activeMap.updateFromClient(message.pos);
         this.broadcast('BOMB_POSITION', message.pos, {
           except: client
         });
@@ -132,6 +134,11 @@ class MyRoom extends MyRoomGameLogic {
         if (player) {
           this.state.getActivePlayer().changeHeroTurn();
           this.setTimerActive(false);
+
+          this.broadcast('ON_SHOOT', null, {
+            except: client
+          });
+
           console.log("Shoot by " + this.state.getActivePlayer().name);
         }
         break;

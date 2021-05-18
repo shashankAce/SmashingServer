@@ -14,8 +14,6 @@ class MapController extends schema.Schema {
     this.rightTimerActivateTimer = 12;
 
     this.bombTimer = 0;
-
-
   }
 
   /**
@@ -74,9 +72,6 @@ class MapController extends schema.Schema {
       this.enableRightFire();
     }, this.rightTimerActivateTimer * 1000);
   }
-
-  
-
 
 }
 

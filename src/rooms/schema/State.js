@@ -1,9 +1,13 @@
 const schema = require('@colyseus/schema');
 const Player = require('../schema/Player').Player;
-const GameMap = require('./mapManager/GameMap').GameMap;
-const MapController = require('./mapManager/MapController').MapController;
 const Constants = require('../../Constants').Constants;
 
+const Bomb = require('./mapManager/Bomb').Bomb;
+const Fire = require('./mapManager/Fire').Fire;
+const Saw = require('./mapManager/Saw').Saw;
+const Wind = require('./mapManager/Wind').Wind;
+const Spring = require('./mapManager/Spring').Spring;
+const GameMap = require('./mapManager/GameMap').GameMap;
 
 class State extends schema.Schema {
   constructor() {
@@ -22,19 +26,7 @@ class State extends schema.Schema {
       y: 0
     };
 
-    this.gameMap = new schema.MapSchema();
-    for (const mapName in Constants.map) {
-      if (mapName != 'random') {
-        const map = new GameMap(Constants.map[mapName], mapName);
-        this.gameMap.set(mapName, map);
-      }
-    }
-
     this.generateGameMap();
-
-    this.mapController = new MapController();
-    if (this.currentMap != 'blank')
-      this.mapController.setMap(this.gameMap.get(this.currentMap));
 
   }
 
@@ -59,55 +51,60 @@ class State extends schema.Schema {
       }
     }
 
-    if (mapName != 'blank') {
-
-      if (Constants.map['random'].isEnabled == true) {
-
-        let map;
-        switch (mapName) {
-          case 'fireMode':
-            map = this.gameMap.get(mapName);
-            map.mode.get('leftEnabled') = Math.floor(Math.random() * 2) == 0 ? true : false;
-            map.mode.get('rightEnabled') = Math.floor(Math.random() * 2) == 0 ? true : false;
-            break;
-
-          case 'springMode':
-            map = this.gameMap.get(mapName);
-            map.mode.get('leftEnabled') = Math.floor(Math.random() * 2) == 0 ? true : false;
-            map.mode.get('rightEnabled') = Math.floor(Math.random() * 2) == 0 ? true : false;
-            map.mode.get('topEnabled') = Math.floor(Math.random() * 2) == 0 ? true : false;
-            map.mode.get('bottomEnabled') = Math.floor(Math.random() * 2) == 0 ? true : false;
-            map.mode.get('centerEnabled') = Math.floor(Math.random() * 2) == 0 ? true : false;
-            break;
-
-          case 'windMode':
-            map = this.gameMap.get(mapName);
-            map.mode.get('leftEnabled') = Math.floor(Math.random() * 2) == 0 ? true : false;
-            map.mode.get('rightEnabled') = Math.floor(Math.random() * 2) == 0 ? true : false;
-            break;
-
-          case 'sawMode':
-            map = this.gameMap.get(mapName);
-            map.mode.get('leftEnabled') = Math.floor(Math.random() * 2) == 0 ? true : false;
-            map.mode.get('rightEnabled') = Math.floor(Math.random() * 2) == 0 ? true : false;
-            break;
-
-          default:
-            console.log('Error');
-            break;
-        }
-
-      }
-      this.gameMap.get(mapName).isEnabled = true;
+    switch (mapName) {
+      case 'fireMode':
+        this.gameMap = new Fire(Constants.map[mapName], mapName);
+        break;
+      case 'bombMode':
+        this.gameMap = new Bomb(Constants.map[mapName], mapName);
+        break;
+      case 'sawMode':
+        this.gameMap = new Saw(Constants.map[mapName], mapName);
+        break;
+      case 'springMode':
+        this.gameMap = new Spring(Constants.map[mapName], mapName);
+        break;
+      case 'windMode':
+        this.gameMap = new Wind(Constants.map[mapName], mapName);
+        break;
+      default:
+        this.gameMap = new GameMap(Constants.map[mapName], mapName);
+        break;
     }
+
+
+    if (mapName != 'blank' && Constants.map['random'].isEnabled == true) {
+
+      if (mapName == 'fireMode' || mapName == 'windMode' || mapName == 'sawMode' || mapName == 'springMode') {
+        this.gameMap.leftEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
+        this.gameMap.rightEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
+      }
+
+      if (mapName == 'springMode') {
+        this.gameMap.topEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
+        this.gameMap.bottomEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
+        this.gameMap.centerEnabled = Math.floor(Math.random() * 2) == 0 ? true : false;
+      }
+    }
+
     this.currentMap = mapName;
   }
 
   startGame() {
     this.phase = Constants.STARTED;
     this.currentTurn = this.playersIdArray[this.playerTurn - 1];
+    // this.mapController.initMap();
+    this.activeMap.initMap();
+  }
 
-    this.mapController.initMap();
+  pauseGame() {
+    this.activeMap.pause();
+    this.phase = Constants.WAITING;
+  }
+
+  stopGame() {
+    this.activeMap.stop();
+    this.phase = Constants.WAITING;
   }
 
   getPlayerTurnIndex() {
@@ -141,10 +138,7 @@ schema.defineTypes(State, {
   touchLocation: {
     map: 'number'
   },
-  gameMap: {
-    map: GameMap
-  },
+  gameMap: GameMap,
   currentMap: 'string',
-  mapController: MapController
 });
 exports.State = State;
