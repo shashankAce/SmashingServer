@@ -1,5 +1,6 @@
 
 const schema = require('@colyseus/schema');
+const { time } = require('uniqid');
 
 class Hero extends schema.Schema {
     constructor(prop) {
@@ -17,6 +18,7 @@ class Hero extends schema.Schema {
         this.size = prop.size;
         this.rating = prop.rating;
         this.playerHitDamage = prop.playerHitDamage;
+        this.totalDamageDealth = 0;
 
         this.playerDamageRPSProbability = new schema.MapSchema();
         this.playerDamageRPSProbability.set("rock", prop.playerDamageRPSProbability.rock);
@@ -40,11 +42,14 @@ class Hero extends schema.Schema {
     updateFromClient(dataObject) {
         this.isShieldActive = dataObject.isShieldActive;
         this.currentHealth = dataObject.currentHealth;
+        this.totalDamageDealth = dataObject.totalDamageDealth;
+        this.isMoving = dataObject.isMoving;
+
         this.x = dataObject.x;
         this.y = dataObject.y;
 
         // Logic after attribute update
-        if(this.currentHealth <= 0){
+        if (this.currentHealth <= 0) {
             this.isDead = true;
             this.isShieldActive = false;
             this.isRageActive = false;
@@ -59,8 +64,8 @@ class Hero extends schema.Schema {
 }
 
 schema.defineTypes(Hero, {
-    x: 'number',
-    y: 'number',
+    // x: 'number',
+    // y: 'number',
     name: 'string',
     mass: 'number',
     restitution: 'number',
@@ -75,8 +80,10 @@ schema.defineTypes(Hero, {
     currentHealth: 'number',
     specialPowerUp: 'string',
     isDead: 'boolean',
+    totalDamageDealth: 'number',
 
     // Additional properties
+    isMoving: 'boolean',
     isActive: 'boolean',
     isShieldActive: 'boolean',
     isRageActive: 'boolean',

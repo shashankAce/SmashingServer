@@ -126,7 +126,14 @@ class MyRoom extends MyRoomGameLogic {
         break;
 
       case "TURN_OVER":
+        console.log('TurnOver', client.sessionId);
         this.switchPlayerTurn();
+        break;
+
+      case "CHECK_NEXT_TURN":
+        this.broadcast('CHECK_NEXT_TURN', null, {
+          except: client
+        });
         break;
 
       case "SHOOT":
