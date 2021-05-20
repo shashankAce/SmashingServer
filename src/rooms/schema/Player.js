@@ -10,9 +10,8 @@ class Player extends schema.Schema {
     this.herosMap = new schema.MapSchema();
     this.isBot = false;
     this.activeHeroIndex = 0;
-
-    this.heroIdArray = [];
     this.heroCount = options.herosArray.length;
+    this.heroIdArray = [];
 
     for (let index = 0; index < options.herosArray.length; index++) {
       let hero = new Hero(options.herosArray[index]);
@@ -21,6 +20,8 @@ class Player extends schema.Schema {
       this.herosMap.set(hero.id, hero);
       this.heroIdArray.push(hero.id);
     }
+    //
+    this.setActiveHero();
   }
 
   addHeros(data) {
@@ -44,10 +45,45 @@ class Player extends schema.Schema {
     }
   }
 
+  setActiveHero() {
+
+    let heroId = this.heroIdArray[this.activeHeroIndex];
+    let hero = this.herosMap.get(heroId);
+    if (hero.currentHealth > 0) {
+      this.activeHeroId = heroId;
+    }
+
+  }
+
   changeHeroTurn() {
-    ++this.activeHeroIndex;
-    if (this.activeHeroIndex >= this.heroCount) {
-      this.activeHeroIndex = 0;
+
+    let deadCount = 0;
+    this.herosMap.forEach((hero, key) => {
+      if (hero.currentHealth <= 0) {
+        ++deadCount;
+      }
+    });
+
+    let herosAlive = this.heroCount - deadCount;
+    if (herosAlive < 1) {
+      // Game Over
+      this.activeHeroIndex = -1;
+    } else {
+      ++this.activeHeroIndex;
+      if (this.activeHeroIndex >= herosAlive) {
+        this.activeHeroIndex = 0;
+      }
+    }
+
+    this.setActiveHero();
+  }
+
+  validateHeroTurn() {
+
+    let heroId = this.heroIdArray[this.activeHeroIndex];
+    let hero = this.herosMap.get(heroId);
+    if (hero.currentHealth <= 0) {
+      this.changeHeroTurn();
     }
   }
 
@@ -70,7 +106,8 @@ schema.defineTypes(Player, {
   seat: 'number',
   herosMap: { map: Hero },
   heroCount: 'number',
-  activeHeroIndex: 'number',
+  // activeHeroIndex: 'number',
+  activeHeroId: 'string',
   heroIdArray: ['string'],
   connected: 'boolean'
 });

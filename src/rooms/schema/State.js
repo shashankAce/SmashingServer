@@ -129,8 +129,10 @@ class State extends schema.Schema {
   }
 
   changePlayerTurn() {
-    // Change previous active player's hero turn
-    this.getActivePlayer().changeHeroTurn();
+    
+    // Change next player's hero turn
+    let nxtTurn = this.playerTurn > 1 ? 1 : 2;
+    this.players.get(this.playersIdArray[nxtTurn - 1]).validateHeroTurn();
 
     // Change player turn
     this.playerTurn = this.playerTurn > 1 ? 1 : 2;
