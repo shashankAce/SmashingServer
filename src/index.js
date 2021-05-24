@@ -19,7 +19,7 @@ const gameServer = new colyseus.Server({
 });
 
 // register your room handlers
-gameServer.define('my_room', MyRoom);
+gameServer.define('OriginalWar', MyRoom);
 
 gameServer.onShutdown(function () {
   console.log('game server is down');

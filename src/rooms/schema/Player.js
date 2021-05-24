@@ -3,6 +3,7 @@ const schema = require('@colyseus/schema');
 const Hero = require('../schema/Hero').Hero;
 
 class Player extends schema.Schema {
+
   constructor(sessionId, options) {
     super();
 

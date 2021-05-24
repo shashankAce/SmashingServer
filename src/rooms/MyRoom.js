@@ -23,18 +23,17 @@ class MyRoom extends MyRoomGameLogic {
   }
 
   onJoin(client, options) {
+    const { playerInfo, roomType, roomId } = options;
 
-    const { fetchInitDataOptions, roomType, roomId } = options;
     this.roomId = roomId;
-
     this._checkRoomType(roomType);
     if (typeof this.getInitialData === 'function') {
-      this.getInitialData(fetchInitDataOptions).then(this.onInitDataReceived);
+      this.getInitialData(playerInfo).then(this.onInitDataReceived);
     }
 
-    console.log('Client joined', client.sessionId);
+    // -------------
 
-    let player = new Player(client.sessionId, options);
+    let player = new Player(client.sessionId, playerInfo);
     player.seat = this.playerCount + 1;
     player.name = options.name;
 
@@ -49,6 +48,11 @@ class MyRoom extends MyRoomGameLogic {
       this.lock();
     }
 
+    console.log('Client joined', client.sessionId);
+  }
+
+  onPlayerJoin(client, data) {
+    // TODO   
   }
 
   onInitDataReceived() {
@@ -126,6 +130,10 @@ class MyRoom extends MyRoomGameLogic {
         this.broadcast('TOUCH_LOCATION', message.pos, {
           except: client
         });
+        break;
+
+      case "PLAYER_JOIN":
+        this.onPlayerJoin(client, message.data);
         break;
 
       case "BOMB_POSITION":
