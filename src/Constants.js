@@ -3,6 +3,15 @@ const Constants = {
   MATCH_MAKING: 'matchmaking',
   WAITING: 'waiting',
   STARTED: 'started',
+  powerup: {
+    "totalPowerUpRewarded": 3,
+    "powerSpawnProbability": {
+      "sheild": 0.5,
+      "heal": 0.5
+    },
+    "sheildTimerInSec": 30,
+    "healValue": 50
+  },
   map: {
     "random": {
       "isEnabled": false,
@@ -26,7 +35,7 @@ const Constants = {
       }
     },
     "fireMode": {
-      "isEnabled": true,
+      "isEnabled": false,
       "damage": 100,
       "mode": {
         "leftEnabled": true,
@@ -49,7 +58,7 @@ const Constants = {
       "damage": 100
     },
     "windMode": {
-      "isEnabled": false,
+      "isEnabled": true,
       "mode": {
         "leftEnabled": true,
         "rightEnabled": false
