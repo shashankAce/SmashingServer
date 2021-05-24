@@ -203,7 +203,15 @@ class MyRoom extends MyRoomGameLogic {
               hero.activateSheild();
           });
         });
+        break;
 
+      case "healEffect":
+        this.state.players.forEach((plyr, sessionId) => {
+          plyr.herosMap.forEach((hero, id) => {
+            if (message.data.id == id)
+              hero.activateHeal();
+          });
+        });
         break;
 
       default:

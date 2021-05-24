@@ -37,15 +37,17 @@ class Hero extends schema.Schema {
     this.isActive = false;
     this.isDead = false;
     this.isShieldActive = false;
+    this.isHealActive = false;
     this.sheildCounter = -1;
     this.sheildTimer = null;
     this.sheildInterval = null;
     this.isRageActive = false;
+    this.healValue = Constants.powerup.healValue;
     this.id = prop.id;
   }
 
   updateFromClient(dataObject) {
-    this.isShieldActive = dataObject.isShieldActive;
+    // this.isShieldActive = dataObject.isShieldActive;
     this.currentHealth = dataObject.currentHealth;
     this.totalDamageDealth = dataObject.totalDamageDealth;
     this.isMoving = dataObject.isMoving;
@@ -56,23 +58,24 @@ class Hero extends schema.Schema {
     // Logic after attribute update
     if (this.currentHealth <= 0) {
       this.isDead = true;
-      this.isShieldActive = false;
+      // this.isShieldActive = false;
       this.isRageActive = false;
       this.isActive = false;
     }
   }
 
   activateSheild() {
-    console.log("isShieldActive activated");
-
     this.isShieldActive = true;
     this.sheildCounter = Constants.powerup.sheildTimerInSec;
 
+    if (this.sheildInterval != null)
+      clearInterval(this.sheildInterval);
+
     this.sheildInterval = setInterval(() => {
-      console.log(this.sheildCounter);
       this.sheildCounter--;
       if (this.sheildCounter <= 0) {
         clearInterval(this.sheildInterval);
+        this.sheildInterval = null;
         this.deactivateSheild();
       }
     }, 1000);
@@ -81,6 +84,13 @@ class Hero extends schema.Schema {
   deactivateSheild() {
     this.sheildCounter = -1;
     this.isShieldActive = false;
+  }
+
+  activateHeal() {
+    this.isHealActive = true;
+    setTimeout(() => {
+      this.isHealActive = false;
+    }, 100);
   }
 
   setPosition(pos) {
@@ -114,6 +124,8 @@ schema.defineTypes(Hero, {
   isMoving: 'boolean',
   isActive: 'boolean',
   isShieldActive: 'boolean',
+  isHealActive: 'boolean',
+  healValue: 'number',
   sheildCounter: 'number',
   isRageActive: 'boolean',
   id: 'string',
