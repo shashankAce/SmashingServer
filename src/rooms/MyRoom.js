@@ -12,7 +12,8 @@ class MyRoom extends MyRoomGameLogic {
 
   onCreate(options) {
 
-    // this.setPatchRate(10); // patchRate in millisecond
+    // patchRate in millisecond
+    // this.setPatchRate(10); 
 
     this.setState(new State());
     console.log("Room created");
@@ -22,11 +23,16 @@ class MyRoom extends MyRoomGameLogic {
   }
 
   onJoin(client, options) {
-    // options
-    // it contains name password to login to server
-    // will be used later
 
-    console.log('client joined', client.sessionId);
+    const { fetchInitDataOptions, roomType, roomId } = options;
+    this.roomId = roomId;
+
+    this._checkRoomType(roomType);
+    if (typeof this.getInitialData === 'function') {
+      this.getInitialData(fetchInitDataOptions).then(this.onInitDataReceived);
+    }
+
+    console.log('Client joined', client.sessionId);
 
     let player = new Player(client.sessionId, options);
     player.seat = this.playerCount + 1;
@@ -43,6 +49,27 @@ class MyRoom extends MyRoomGameLogic {
       this.lock();
     }
 
+  }
+
+  onInitDataReceived() {
+    console.log("something has done");
+  }
+
+  hasAllPlayersJoined() {
+    return this.locked
+  }
+
+  _checkRoomType(roomType) {
+    if (roomType === 'private') {
+      console.log("Creating Private Room");
+      this.setPrivate(true);
+    } else if (roomType === 'public') {
+      console.log("Creating Public Room");
+    }
+  }
+
+  getInitialData() {
+    return Promise.resolve()
   }
 
   async onLeave(client, consented) {
