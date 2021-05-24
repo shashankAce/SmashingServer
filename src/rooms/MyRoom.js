@@ -188,6 +188,16 @@ class MyRoom extends MyRoomGameLogic {
         });
         break;
 
+      case "sheildEffect":
+        this.state.players.forEach((plyr, sessionId) => {
+          plyr.herosMap.forEach((hero, id) => {
+            if (message.data.id == id)
+              hero.activateSheild();
+          });
+        });
+
+        break;
+
       default:
         console.log("Command -" + command + " not found");
         break;
