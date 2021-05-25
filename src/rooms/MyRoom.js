@@ -170,7 +170,7 @@ class MyRoom extends MyRoomGameLogic {
       case "SHOOT":
         let player = this.state.getActivePlayer();
         if (player) {
-          this.state.getActivePlayer().changeHeroTurn();
+          // this.state.getActivePlayer().changeHeroTurn();
           this.setTimerActive(false);
 
           this.broadcast('ON_SHOOT', null, {

@@ -9,10 +9,10 @@ class Player extends schema.Schema {
 
     this.sessionId = sessionId;
     this.herosMap = new schema.MapSchema();
-    this.isBot = false;
-    this.activeHeroIndex = 0;
     this.heroCount = options.herosArray.length;
+
     this.heroIdArray = [];
+    this.isBot = false;
 
     for (let index = 0; index < options.herosArray.length; index++) {
       let hero = new Hero(options.herosArray[index]);
@@ -22,7 +22,11 @@ class Player extends schema.Schema {
       this.heroIdArray.push(hero.id);
     }
     //
+    this.activeHeroIndex = 0;
     this.setActiveHero();
+
+    this.firstHeroChanged = false;
+
   }
 
   addHeros(data) {
@@ -57,6 +61,16 @@ class Player extends schema.Schema {
   }
 
   changeHeroTurn() {
+
+    if (!this.firstHeroChanged) {
+      this.firstHeroChanged = true;
+
+      let heroId = this.heroIdArray[this.activeHeroIndex];
+      let hero = this.herosMap.get(heroId);
+      if (hero.currentHealth > 0) {
+        return;
+      }
+    }
 
     let deadCount = 0;
     this.herosMap.forEach((hero, key) => {
