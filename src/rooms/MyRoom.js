@@ -12,8 +12,13 @@ class MyRoom extends MyRoomGameLogic {
 
   onCreate(options) {
 
-    // patchRate in millisecond
-    // this.setPatchRate(10); 
+    const { playerInfo, roomType, roomId } = options;
+
+    this.roomId = roomId;
+    this._checkRoomType(roomType);
+    if (typeof this.getInitialData === 'function') {
+      this.getInitialData(playerInfo).then(this.onInitDataReceived);
+    }
 
     this.setState(new State());
     console.log("Room created");
@@ -23,17 +28,8 @@ class MyRoom extends MyRoomGameLogic {
   }
 
   onJoin(client, options) {
-    const { playerInfo, roomType, roomId } = options;
-
-    this.roomId = roomId;
-    this._checkRoomType(roomType);
-    if (typeof this.getInitialData === 'function') {
-      this.getInitialData(playerInfo).then(this.onInitDataReceived);
-    }
-
-    // -------------
-
-    let player = new Player(client.sessionId, playerInfo);
+    
+    let player = new Player(client.sessionId, options.playerInfo);
     player.seat = this.playerCount + 1;
     player.name = options.name;
 
@@ -56,7 +52,7 @@ class MyRoom extends MyRoomGameLogic {
   }
 
   onInitDataReceived() {
-    console.log("something has done");
+    // console.log("something has done");
   }
 
   hasAllPlayersJoined() {
